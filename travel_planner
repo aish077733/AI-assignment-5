@@ -1,0 +1,48 @@
+#include <stdio.h> 
+int main() 
+{ 
+    int budget, choice; 
+    printf("=== AI Travel Planner ===\n"); 
+    printf("\nSelect Interest:\n"); 
+    printf("1. Beaches\n"); 
+    printf("2. Adventure\n"); 
+    printf("3. Historical Places\n"); 
+    printf("Choice: "); 
+    scanf("%d", &choice); 
+    printf("Enter Budget (Rs): "); 
+    scanf("%d", &budget); 
+    printf("\n----- Travel Plan -----\n"); 
+    if(choice==1) 
+    { 
+        printf("Destination : Goa\n"); 
+        printf("Food        : Fish Curry\n"); 
+        printf("Hotel       : Beach Resort\n"); 
+        printf("Places      : Baga Beach, Calangute Beach\n"); 
+        printf("Estimated Cost : Rs 25000\n"); 
+    } 
+    else if(choice==2) 
+    { 
+        printf("Destination : Manali\n"); 
+        printf("Food        : Himachali Food\n"); 
+        printf("Hotel       : Mountain View Hotel\n"); 
+        printf("Places      : Solang Valley, Rohtang Pass\n"); 
+        printf("Estimated Cost : Rs 30000\n"); 
+    } 
+    else if(choice==3) 
+    { 
+        printf("Destination : Jaipur\n"); 
+        printf("Food        : Dal Baati Churma\n"); 
+        printf("Hotel       : Heritage Hotel\n"); 
+        printf("Places      : Hawa Mahal, Amber Fort\n"); 
+        printf("Estimated Cost : Rs 20000\n"); 
+    } 
+    else 
+    { 
+        printf("Invalid Choice\n"); 
+    } 
+    if(budget < 20000) 
+        printf("\nSuggestion: Increase budget for better experience.\n"); 
+    else 
+        printf("\nTrip fits your budget.\n"); 
+    return 0; 
+}
