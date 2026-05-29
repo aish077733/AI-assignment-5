@@ -1,0 +1,351 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+char b[9];
+
+void init() {
+    for(int i=0;i<9;i++) b[i]=' ';
+}
+
+void show() {
+    printf("\n");
+    for(int i=0;i<9;i++) {
+        printf(" %c ", b[i]);
+        if(i%3!=2) printf("|");
+        if(i%3==2 && i!=8) printf("\n-----------\n");
+    }
+    printf("\n\n");
+}
+
+int win(char p) {
+    int w[8][3]={
+        {0,1,2},{3,4,5},{6,7,8},
+        {0,3,6},{1,4,7},{2,5,8},
+        {0,4,8},{2,4,6}
+    };
+
+    for(int i=0;i<8;i++)
+        if(b[w[i][0]]==p &&
+           b[w[i][1]]==p &&
+           b[w[i][2]]==p)
+           return 1;
+
+    return 0;
+}
+
+int full() {
+    for(int i=0;i<9;i++)
+        if(b[i]==' ') return 0;
+    return 1;
+}
+
+/* -------- MINIMAX -------- */
+
+int minimax(int isMax) {
+
+    if(win('O')) return 10;
+    if(win('X')) return -10;
+    if(full()) return 0;
+
+    if(isMax) {
+        int best=-1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='O';
+                int val=minimax(0);
+                b[i]=' ';
+                if(val>best) best=val;
+            }
+        }
+        return best;
+    }
+    else {
+        int best=1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='X';
+                int val=minimax(1);
+                b[i]=' ';
+                if(val<best) best=val;
+            }
+        }
+        return best;
+    }
+}
+
+int bestMoveMinimax() {
+    int best=-1000, move=-1;
+
+    for(int i=0;i<9;i++) {
+        if(b[i]==' ') {
+            b[i]='O';
+            int val=minimax(0);
+            b[i]=' ';
+
+            if(val>best) {
+                best=val;
+                move=i;
+            }
+        }
+    }
+    return move;
+}
+
+/* -------- ALPHA BETA -------- */
+
+int alphabeta(int depth,int alpha,int beta,int isMax) {
+
+    if(win('O')) return 10;
+    if(win('X')) return -10;
+    if(full()) return 0;
+
+    if(isMax) {
+        int best=-1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='O';
+
+                int val=alphabeta(depth+1,
+                                  alpha,beta,0);
+
+                b[i]=' ';
+
+                if(val>best) best=val;
+                if(best>alpha) alpha=best;
+
+                if(beta<=alpha) break;
+            }
+        }
+        return best;
+    }
+    else {
+        int best=1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='X';
+
+                int val=alphabeta(depth+1,
+                                  alpha,beta,1);
+
+                b[i]=' ';
+
+                if(val<best) best=val;
+                if(best<beta) beta=best;
+
+                if(beta<=alpha) break;
+            }
+        }
+        return best;
+    }
+}
+
+int bestMoveAlphaBeta() {
+    int best=-1000, move=-1;
+
+    for(int i=0;i<9;i++) {
+        if(b[i]==' ') {
+            b[i]='O';
+
+            int val=alphabeta(0,-1000,1000,0);
+
+            b[i]=' ';
+
+            if(val>best) {
+                best=val;
+                move=i;
+            }
+        }
+    }
+    return move;
+}
+
+/* ---- HEURISTIC ALPHA BETA ---- */
+
+int heuristic() {
+    int score=0;
+
+    if(b[4]=='O') score+=3;
+    if(b[0]=='O'||b[2]=='O'||b[6]=='O'||b[8]=='O')
+        score+=1;
+
+    return score;
+}
+
+int heuristicAB(int depth,int alpha,int beta,int isMax) {
+
+    if(win('O')) return 10;
+    if(win('X')) return -10;
+    if(depth==3 || full()) return heuristic();
+
+    if(isMax) {
+        int best=-1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='O';
+
+                int val=heuristicAB(depth+1,
+                                    alpha,beta,0);
+
+                b[i]=' ';
+
+                if(val>best) best=val;
+                if(best>alpha) alpha=best;
+
+                if(beta<=alpha) break;
+            }
+        }
+        return best;
+    }
+    else {
+        int best=1000;
+
+        for(int i=0;i<9;i++) {
+            if(b[i]==' ') {
+                b[i]='X';
+
+                int val=heuristicAB(depth+1,
+                                    alpha,beta,1);
+
+                b[i]=' ';
+
+                if(val<best) best=val;
+                if(best<beta) beta=best;
+
+                if(beta<=alpha) break;
+            }
+        }
+        return best;
+    }
+}
+
+int bestMoveHeuristic() {
+    int best=-1000, move=-1;
+
+    for(int i=0;i<9;i++) {
+        if(b[i]==' ') {
+            b[i]='O';
+
+            int val=heuristicAB(0,-1000,1000,0);
+
+            b[i]=' ';
+
+            if(val>best) {
+                best=val;
+                move=i;
+            }
+        }
+    }
+    return move;
+}
+
+/* -------- MCTS (Simple) -------- */
+
+int bestMoveMCTS() {
+
+    int best=-1;
+    int bestScore=-1;
+
+    for(int i=0;i<9;i++) {
+
+        if(b[i]==' ') {
+
+            int wins=0;
+
+            for(int k=0;k<100;k++) {
+
+                char temp[9];
+                for(int j=0;j<9;j++)
+                    temp[j]=b[j];
+
+                temp[i]='O';
+
+                if(rand()%2) wins++;
+            }
+
+            if(wins>bestScore) {
+                bestScore=wins;
+                best=i;
+            }
+        }
+    }
+    return best;
+}
+
+/* -------- MAIN -------- */
+
+int main() {
+
+    int choice,pos;
+    srand(time(NULL));
+
+    init();
+
+    printf("1. Minimax\n");
+    printf("2. Alpha-Beta\n");
+    printf("3. Heuristic Alpha-Beta\n");
+    printf("4. Monte Carlo Tree Search\n");
+    printf("Choice: ");
+    scanf("%d",&choice);
+
+    while(1) {
+
+        show();
+
+        printf("Enter position (1-9): ");
+        scanf("%d",&pos);
+
+        pos--;
+
+        if(pos<0 || pos>8 || b[pos]!=' ') {
+            printf("Invalid Move\n");
+            continue;
+        }
+
+        b[pos]='X';
+
+        if(win('X')) {
+            show();
+            printf("You Win!\n");
+            break;
+        }
+
+        if(full()) {
+            show();
+            printf("Draw!\n");
+            break;
+        }
+
+        int move;
+
+        if(choice==1)
+            move=bestMoveMinimax();
+        else if(choice==2)
+            move=bestMoveAlphaBeta();
+        else if(choice==3)
+            move=bestMoveHeuristic();
+        else
+            move=bestMoveMCTS();
+
+        b[move]='O';
+
+        if(win('O')) {
+            show();
+            printf("Computer Wins!\n");
+            break;
+        }
+
+        if(full()) {
+            show();
+            printf("Draw!\n");
+            break;
+        }
+    }
+
+    return 0;
+}
